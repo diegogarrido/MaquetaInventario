@@ -163,12 +163,114 @@ public class DBHandler {
         return region;
     }
 
+    public Sucursal[] ObtenerSucursales() {
+        Sucursal[] sucursales = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM sucursal");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    sucursales = new Sucursal[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < sucursales.length; i++) {
+                        sucursales[i] = ObtenerSucursal(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return sucursales;
+    }
+
+    public Sucursal[] ObtenerSucursalesDeComuna(Comuna com) {
+        Sucursal[] sucursales = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM sucursal WHERE id_comuna=" + com.id);
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    sucursales = new Sucursal[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < sucursales.length; i++) {
+                        sucursales[i] = ObtenerSucursal(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return sucursales;
+    }
+
+    public Sucursal ObtenerSucursal(int id) {
+        Sucursal sucursal = null;
+        if (this.conn != null) {
+            try {
+                Statement st = conn.createStatement();
+                if (st.execute("SELECT * FROM sucursal WHERE id=" + id)) {
+                    ResultSet res = st.getResultSet();
+                    res.first();
+                    sucursal = new Sucursal();
+                    sucursal.setId(res.getInt("id"));
+                    sucursal.setNombre(res.getString("nombre"));
+                    sucursal.setDireccion(res.getString("direccion"));
+                    sucursal.setId_comuna(res.getInt("id_comuna"));
+                    st.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return sucursal;
+    }
+
     public Comuna[] ObtenerComunas() {
         Comuna[] comunas = null;
         if (this.conn != null) {
             try {
                 stat = conn.createStatement();
                 stat.execute("SELECT id FROM comuna");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    comunas = new Comuna[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < comunas.length; i++) {
+                        comunas[i] = ObtenerComuna(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return comunas;
+    }
+
+    public Comuna[] ObtenerComunasDeRegion(Region reg) {
+        Comuna[] comunas = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM comuna WHERE id_region=" + reg.id);
                 try (ResultSet res = stat.getResultSet()) {
                     res.last();
                     comunas = new Comuna[res.getRow()];

@@ -11,7 +11,7 @@ public class MaquetaInventario {
     public static void main(String[] args) {
         DBHandler db = new DBHandler("admin", "admin","sist_inventario");
         db.Conectar();
-        db.InsertarProducto(new Producto("producto1","descripcion"));
+        db.Insertar(new Producto("producto1","descripcion"));
     }
     
 }

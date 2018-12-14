@@ -5,14 +5,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import db.orm.Producto;
 import db.orm.Region;
 import db.orm.Sucursal;
 
 public class DBHandler {
-
     private Connection conn;
     private Statement stat;
 
@@ -62,7 +59,28 @@ public class DBHandler {
         }
     }
 
-    public boolean InsertarProducto(Producto prod) {
+    /**
+     * Insertar un objeto a la base de datos.
+     * Se puede entregar cualquier objeto de las clases: Producto, Comuna, Region y Sucursal
+     * @param o Objeto de cualquiera de las clases especificadas
+     * @return Verdadero si se inserta, falso si hay error.
+     */
+    public boolean Insertar(Object o) {
+        if (o.getClass() == Producto.class) {
+            return InsertarProducto((Producto) o);
+        } else if (o.getClass() == Comuna.class) {
+            return InsertarComuna((Comuna) o);
+        } else if (o.getClass() == Region.class) {
+            return InsertarRegion((Region) o);
+        } else if (o.getClass() == Sucursal.class) {
+            return InsertarSucursal((Sucursal) o);
+        } else {
+            System.out.println("Objeto no es Producto ni Comuna ni Region ni Sucursal");
+            return false;
+        }
+    }
+
+    private boolean InsertarProducto(Producto prod) {
         try {
             stat = conn.createStatement();
             return stat.execute("INSERT INTO producto (nombre,descripcion) values ('" + prod.nombre + "','" + prod.descripcion + "');");
@@ -80,7 +98,7 @@ public class DBHandler {
         }
     }
 
-    public boolean InsertarRegion(Region reg) {
+    private boolean InsertarRegion(Region reg) {
         try {
             stat = conn.createStatement();
             return stat.execute("INSERT INTO region (nombre) values ('" + reg.nombre + "');");
@@ -98,7 +116,7 @@ public class DBHandler {
         }
     }
 
-    public boolean InsertarComuna(Comuna com) {
+    private boolean InsertarComuna(Comuna com) {
         try {
             stat = conn.createStatement();
             return stat.execute("INSERT INTO comuna (nombre,id_region) values ('" + com.nombre + "'," + com.id_region + ");");
@@ -116,7 +134,7 @@ public class DBHandler {
         }
     }
 
-    public boolean InsertarSucursal(Sucursal suc) {
+    private boolean InsertarSucursal(Sucursal suc) {
         try {
             stat = conn.createStatement();
             return stat.execute("INSERT INTO sucursal (nombre,direccion,id_comuna) values ('" + suc.nombre + "','" + suc.direccion + "'," + suc.id_comuna + ");");

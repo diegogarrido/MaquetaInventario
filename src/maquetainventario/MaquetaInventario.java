@@ -11,11 +11,9 @@ public class MaquetaInventario {
     public static void main(String[] args) {
         DBHandler db = new DBHandler("admin", "admin", "sist_inventario");
         db.Conectar();
-        db.Insertar(new Producto("producto1", "descripcion"));
-        Region[] reg = db.ObtenerRegiones();
-        for (int i = 0; i < reg.length; i++) {
-            System.out.println(reg[i].nombre);
-        }
+        Producto p = new Producto("producto1", "descripcion");
+        db.Insertar(p);
+        db.AgregarProducto(db.ObtenerSucursal(1), db.ObtenerProducto(1), 5);
     }
-
+    
 }

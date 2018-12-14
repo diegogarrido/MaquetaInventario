@@ -76,19 +76,66 @@ public class DBHandler {
         }
     }
 
+    public void AgregarProducto(Sucursal suc, Producto prod, int cantidad) {
+        if (this.conn != null && cantidad > 0) {
+            try {
+                Producto[] productos = ObtenerProductosEnSucursal(suc);
+                boolean existe = false;
+                for (int i = 0; i < productos.length; i++) {
+                    if (productos[i].id == prod.id) {
+                        existe = true;
+                        break;
+                    }
+                }
+                stat = conn.createStatement();
+                if (existe) {
+                    stat.execute("UPDATE sucursaltieneproducto SET cantidad=" + (ObtenerCantidadDeProductoEnSucursal(suc, prod) + cantidad) + " WHERE id_sucursal=" + suc.id + " AND id_producto=" + prod.id);
+                } else {
+                    stat.execute("INSERT INTO sucursaltieneproducto (id_sucursal,id_producto,cantidad) VALUES (" + suc.id + "," + prod.id + "," + cantidad + ");");
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+    }
+
+    public int ObtenerCantidadDeProductoEnSucursal(Sucursal suc, Producto prod) {
+        int cant = -1;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT cantidad FROM sucursaltieneproducto WHERE id_sucursal=" + suc.id + " AND id_producto=" + prod.id);
+                try (ResultSet res = stat.getResultSet()) {
+                    res.first();
+                    cant = (res.getInt("cantidad"));
+                    stat.close();
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return cant;
+    }
+
     public Producto[] ObtenerProductosEnSucursal(Sucursal suc) {
         Producto[] productos = null;
         if (this.conn != null) {
             try {
                 stat = conn.createStatement();
-                stat.execute("SELECT id FROM surusaltieneproducto WHERE id_sucursal=" + suc.id);
+                stat.execute("SELECT id_producto FROM sucursaltieneproducto WHERE id_sucursal=" + suc.id);
                 try (ResultSet res = stat.getResultSet()) {
                     res.last();
                     productos = new Producto[res.getRow()];
                     res.beforeFirst();
                     res.first();
                     for (int i = 0; i < productos.length; i++) {
-                        productos[i] = ObtenerProducto(res.getInt("id"));
+                        productos[i] = ObtenerProducto(res.getInt("id_producto"));
                         res.next();
                     }
                 }
@@ -100,19 +147,6 @@ public class DBHandler {
             }
         }
         return productos;
-    }
-
-    public void AgregarProducto(Sucursal suc, Producto prod, int cantidad) {
-        if (this.conn != null && cantidad > 0) {
-            try {
-                stat = conn.createStatement();
-
-            } catch (SQLException ex) {
-                System.out.println("SQLException: " + ex.getMessage());
-                System.out.println("SQLState: " + ex.getSQLState());
-                System.out.println("VendorError: " + ex.getErrorCode());
-            }
-        }
     }
 
     public Region[] ObtenerRegiones() {
@@ -560,6 +594,7 @@ public class DBHandler {
                     + "  id INT NOT NULL AUTO_INCREMENT,\n"
                     + "  id_sucursal INT NOT NULL,\n"
                     + "  id_producto INT NOT NULL,\n"
+                    + "  cantidad INT NOT NULL,\n"
                     + "  PRIMARY KEY (id),\n"
                     + "  FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id),\n"
                     + "  FOREIGN KEY (id_producto) REFERENCES Producto(id)\n"

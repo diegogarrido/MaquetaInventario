@@ -1,28 +1,23 @@
 package db;
 
-import db.orm.Comuna;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import db.orm.Producto;
-import db.orm.Region;
-import db.orm.Sucursal;
+import db.orm.*;
+import java.sql.*;
 
 public class DBHandler {
+    
     private Connection conn;
     private Statement stat;
-
+    
     public String user;
     public String password;
     public String database;
-
+    
     public DBHandler(String user, String password, String database) {
         this.user = user;
         this.password = password;
         this.database = database;
     }
-
+    
     public boolean Conectar() {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/" + database + "?user=" + user + "&password=" + password);
@@ -60,8 +55,9 @@ public class DBHandler {
     }
 
     /**
-     * Insertar un objeto a la base de datos.
-     * Se puede entregar cualquier objeto de las clases: Producto, Comuna, Region y Sucursal
+     * Insertar un objeto a la base de datos. Se puede entregar cualquier objeto
+     * de las clases: Producto, Comuna, Region y Sucursal
+     *
      * @param o Objeto de cualquiera de las clases especificadas
      * @return Verdadero si se inserta, falso si hay error.
      */
@@ -79,7 +75,153 @@ public class DBHandler {
             return false;
         }
     }
-
+    
+    public Region[] ObtenerRegiones() {
+        Region[] regiones = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM region");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    regiones = new Region[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < regiones.length; i++) {
+                        regiones[i] = ObtenerRegion(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return regiones;
+    }
+    
+    public Region ObtenerRegion(int id) {
+        Region region = null;
+        if (this.conn != null) {
+            try {
+                Statement st = conn.createStatement();
+                if (st.execute("SELECT * FROM region WHERE id=" + id)) {
+                    ResultSet res = st.getResultSet();
+                    res.first();
+                    region = new Region();
+                    region.setId(res.getInt("id"));
+                    region.setNombre(res.getString("nombre"));
+                    st.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return region;
+    }
+    
+    public Comuna[] ObtenerComunas() {
+        Comuna[] comunas = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM comuna");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    comunas = new Comuna[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < comunas.length; i++) {
+                        comunas[i] = ObtenerComuna(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return comunas;
+    }
+    
+    public Comuna ObtenerComuna(int id) {
+        Comuna comuna = null;
+        if (this.conn != null) {
+            try {
+                Statement st = conn.createStatement();
+                if (st.execute("SELECT * FROM comuna WHERE id=" + id)) {
+                    ResultSet res = st.getResultSet();
+                    res.first();
+                    comuna = new Comuna();
+                    comuna.setId(res.getInt("id"));
+                    comuna.setNombre(res.getString("nombre"));
+                    comuna.setId_region(res.getInt("id_region"));
+                    st.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return comuna;
+    }
+    
+    public Producto[] ObtenerProductos() {
+        Producto[] productos = null;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT id FROM producto");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.last();
+                    productos = new Producto[res.getRow()];
+                    res.beforeFirst();
+                    res.first();
+                    for (int i = 0; i < productos.length; i++) {
+                        productos[i] = ObtenerProducto(res.getInt("id"));
+                        res.next();
+                    }
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return productos;
+    }
+    
+    public Producto ObtenerProducto(int id) {
+        Producto producto = null;
+        if (this.conn != null) {
+            try {
+                Statement st = conn.createStatement();
+                if (st.execute("SELECT * FROM producto WHERE id=" + id)) {
+                    ResultSet res = st.getResultSet();
+                    res.first();
+                    producto = new Producto();
+                    producto.setId(res.getInt("id"));
+                    producto.setNombre(res.getString("nombre"));
+                    producto.setDescripcion(res.getString("descripcion"));
+                    st.close();
+                }
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return producto;
+    }
+    
     private boolean InsertarProducto(Producto prod) {
         try {
             stat = conn.createStatement();
@@ -97,7 +239,7 @@ public class DBHandler {
             }
         }
     }
-
+    
     private boolean InsertarRegion(Region reg) {
         try {
             stat = conn.createStatement();
@@ -115,7 +257,7 @@ public class DBHandler {
             }
         }
     }
-
+    
     private boolean InsertarComuna(Comuna com) {
         try {
             stat = conn.createStatement();
@@ -133,7 +275,7 @@ public class DBHandler {
             }
         }
     }
-
+    
     private boolean InsertarSucursal(Sucursal suc) {
         try {
             stat = conn.createStatement();
@@ -151,7 +293,7 @@ public class DBHandler {
             }
         }
     }
-
+    
     public boolean CrearTablas() {
         boolean prod = CrearTablaProducto();
         boolean reg = CrearTablaRegion();
@@ -160,7 +302,7 @@ public class DBHandler {
         boolean sucTprod = CreatTablaSucursalTieneProducto();
         return (prod && reg && com && suc && sucTprod);
     }
-
+    
     private boolean CrearTablaProducto() {
         try {
             stat = conn.createStatement();
@@ -183,7 +325,7 @@ public class DBHandler {
             return false;
         }
     }
-
+    
     private boolean CrearTablaRegion() {
         try {
             stat = conn.createStatement();
@@ -219,7 +361,7 @@ public class DBHandler {
             return false;
         }
     }
-
+    
     private boolean CrearTablaComuna() {
         try {
             stat = conn.createStatement();
@@ -244,7 +386,7 @@ public class DBHandler {
             return false;
         }
     }
-
+    
     private boolean CrearTablaSucursal() {
         try {
             stat = conn.createStatement();
@@ -268,7 +410,7 @@ public class DBHandler {
             return false;
         }
     }
-
+    
     private boolean CreatTablaSucursalTieneProducto() {
         try {
             stat = conn.createStatement();

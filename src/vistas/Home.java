@@ -45,11 +45,11 @@ public class Home extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         lbl_region = new javax.swing.JLabel();
-        combo_region = new javax.swing.JComboBox<>();
+        combo_region = new javax.swing.JComboBox<String>();
         lbl_comuna = new javax.swing.JLabel();
-        combo_comuna = new javax.swing.JComboBox<>();
+        combo_comuna = new javax.swing.JComboBox<String>();
         jLabel1 = new javax.swing.JLabel();
-        combo_sucursal = new javax.swing.JComboBox<>();
+        combo_sucursal = new javax.swing.JComboBox<String>();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -78,7 +78,7 @@ public class Home extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("Sucursal");
 
-        combo_sucursal.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " ", " " }));
+        combo_sucursal.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", " " }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

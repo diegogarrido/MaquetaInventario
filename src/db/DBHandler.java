@@ -4,20 +4,20 @@ import db.orm.*;
 import java.sql.*;
 
 public class DBHandler {
-    
+
     private Connection conn;
     private Statement stat;
-    
+
     public String user;
     public String password;
     public String database;
-    
+
     public DBHandler(String user, String password, String database) {
         this.user = user;
         this.password = password;
         this.database = database;
     }
-    
+
     public boolean Conectar() {
         try {
             conn = DriverManager.getConnection("jdbc:mysql://localhost/" + database + "?user=" + user + "&password=" + password);
@@ -75,7 +75,7 @@ public class DBHandler {
             return false;
         }
     }
-    
+
     public void AgregarProducto(Sucursal suc, Producto prod, int cantidad) {
         if (this.conn != null && cantidad > 0) {
             try {
@@ -91,7 +91,7 @@ public class DBHandler {
                 if (existe) {
                     stat.execute("UPDATE sucursaltieneproducto SET cantidad=" + (ObtenerCantidadDeProductoEnSucursal(suc, prod) + cantidad) + " WHERE id_sucursal=" + suc.id + " AND id_producto=" + prod.id);
                 } else {
-                    stat.execute("INSERT INTO sucursaltieneproducto (id_sucursal,id_producto,cantidad) VALUES (" + suc.id + "," + prod.id + "," + cantidad + ");");
+                    stat.execute("INSERT INTO sucursaltieneproducto (id_sucursal,id_producto,cantidad,precio_unitario) VALUES (" + suc.id + "," + prod.id + "," + cantidad + "," + 0 + ")");
                 }
                 stat.close();
             } catch (SQLException ex) {
@@ -101,7 +101,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     public Producto[] ObtenerProductosNoEnSucursal(Sucursal suc) {
         Producto[] productos = null;
         if (this.conn != null) {
@@ -127,7 +127,7 @@ public class DBHandler {
         }
         return productos;
     }
-    
+
     public int ObtenerCantidadDeProductoEnSucursal(Sucursal suc, Producto prod) {
         int cant = -1;
         if (this.conn != null) {
@@ -148,7 +148,7 @@ public class DBHandler {
         }
         return cant;
     }
-    
+
     public SucursalTieneProducto[] ObtenerSucursalTieneProductos(Sucursal suc) {
         SucursalTieneProducto[] productos = null;
         if (this.conn != null) {
@@ -174,7 +174,7 @@ public class DBHandler {
         }
         return productos;
     }
-    
+
     public SucursalTieneProducto ObtenerSucursalTieneProducto(int id) {
         SucursalTieneProducto suc = null;
         if (this.conn != null) {
@@ -199,7 +199,7 @@ public class DBHandler {
         }
         return suc;
     }
-    
+
     public Producto[] ObtenerProductosEnSucursal(Sucursal suc) {
         Producto[] productos = null;
         if (this.conn != null) {
@@ -225,7 +225,7 @@ public class DBHandler {
         }
         return productos;
     }
-    
+
     public Region[] ObtenerRegiones() {
         Region[] regiones = null;
         if (this.conn != null) {
@@ -251,7 +251,7 @@ public class DBHandler {
         }
         return regiones;
     }
-    
+
     public Region ObtenerRegion(int id) {
         Region region = null;
         if (this.conn != null) {
@@ -273,7 +273,7 @@ public class DBHandler {
         }
         return region;
     }
-    
+
     public Sucursal[] ObtenerSucursales() {
         Sucursal[] sucursales = null;
         if (this.conn != null) {
@@ -299,7 +299,7 @@ public class DBHandler {
         }
         return sucursales;
     }
-    
+
     public Sucursal[] ObtenerSucursalesDeComuna(Comuna com) {
         Sucursal[] sucursales = null;
         if (this.conn != null) {
@@ -325,7 +325,7 @@ public class DBHandler {
         }
         return sucursales;
     }
-    
+
     public Sucursal ObtenerSucursal(int id) {
         Sucursal sucursal = null;
         if (this.conn != null) {
@@ -349,7 +349,7 @@ public class DBHandler {
         }
         return sucursal;
     }
-    
+
     public Comuna[] ObtenerComunas() {
         Comuna[] comunas = null;
         if (this.conn != null) {
@@ -375,7 +375,7 @@ public class DBHandler {
         }
         return comunas;
     }
-    
+
     public Comuna[] ObtenerComunasDeRegion(Region reg) {
         Comuna[] comunas = null;
         if (this.conn != null) {
@@ -401,7 +401,7 @@ public class DBHandler {
         }
         return comunas;
     }
-    
+
     public Comuna ObtenerComuna(int id) {
         Comuna comuna = null;
         if (this.conn != null) {
@@ -424,7 +424,7 @@ public class DBHandler {
         }
         return comuna;
     }
-    
+
     public Producto[] ObtenerProductos() {
         Producto[] productos = null;
         if (this.conn != null) {
@@ -450,7 +450,7 @@ public class DBHandler {
         }
         return productos;
     }
-    
+
     public Producto ObtenerProducto(int id) {
         Producto producto = null;
         if (this.conn != null) {
@@ -473,7 +473,7 @@ public class DBHandler {
         }
         return producto;
     }
-    
+
     private boolean InsertarProducto(Producto prod) {
         try {
             stat = conn.createStatement();
@@ -491,7 +491,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     private boolean InsertarRegion(Region reg) {
         try {
             stat = conn.createStatement();
@@ -509,7 +509,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     private boolean InsertarComuna(Comuna com) {
         try {
             stat = conn.createStatement();
@@ -527,7 +527,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     private boolean InsertarSucursal(Sucursal suc) {
         try {
             stat = conn.createStatement();
@@ -545,7 +545,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     public boolean CrearTablas() {
         boolean prod = CrearTablaProducto();
         boolean reg = CrearTablaRegion();
@@ -554,7 +554,7 @@ public class DBHandler {
         boolean sucTprod = CreatTablaSucursalTieneProducto();
         return (prod && reg && com && suc && sucTprod);
     }
-    
+
     private boolean CrearTablaProducto() {
         try {
             stat = conn.createStatement();
@@ -577,7 +577,7 @@ public class DBHandler {
             return false;
         }
     }
-    
+
     private boolean CrearTablaRegion() {
         try {
             stat = conn.createStatement();
@@ -613,7 +613,7 @@ public class DBHandler {
             return false;
         }
     }
-    
+
     private boolean CrearTablaComuna() {
         try {
             stat = conn.createStatement();
@@ -638,7 +638,7 @@ public class DBHandler {
             return false;
         }
     }
-    
+
     private boolean CrearTablaSucursal() {
         try {
             stat = conn.createStatement();
@@ -662,7 +662,7 @@ public class DBHandler {
             return false;
         }
     }
-    
+
     private boolean CreatTablaSucursalTieneProducto() {
         try {
             stat = conn.createStatement();

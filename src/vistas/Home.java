@@ -282,12 +282,15 @@ public class Home extends javax.swing.JFrame {
         combo_sucursal.removeAllItems();
         LimpiarProductosRegistrados();
         if (combo_comuna.getSelectedIndex() > 0) {
-            combo_sucursal.addItem("Seleccionar...");
-            sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
-            for (int i = 0; i < sucursales.length; i++) {
-                combo_sucursal.addItem(sucursales[i].nombre);
+            if (combo_comuna.getSelectedIndex() == comunas.length) {
+            } else {
+                combo_sucursal.addItem("Seleccionar...");
+                sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
+                for (int i = 0; i < sucursales.length; i++) {
+                    combo_sucursal.addItem(sucursales[i].nombre);
+                }
+                combo_sucursal.addItem("Agregar sucursal");
             }
-            combo_sucursal.addItem("Agregar sucursal");
         }
     }//GEN-LAST:event_combo_comunaActionPerformed
 

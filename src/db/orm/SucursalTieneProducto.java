@@ -6,18 +6,29 @@ public class SucursalTieneProducto {
     public int id_sucursal;
     public int id_producto;
     public int cantidad;
+    public int precio_unitario;
 
-    public SucursalTieneProducto(int id, int id_sucursal, int id_producto, int cantidad) {
+    public SucursalTieneProducto(int id, int id_sucursal, int id_producto, int cantidad, int precio_unitario) {
         this.id = id;
         this.id_sucursal = id_sucursal;
         this.id_producto = id_producto;
         this.cantidad = cantidad;
+        this.precio_unitario = precio_unitario;
     }
 
-    public SucursalTieneProducto(int id_sucursal, int id_producto, int cantidad) {
+    public SucursalTieneProducto(int id_sucursal, int id_producto, int cantidad,int precio_unitario) {
         this.id_sucursal = id_sucursal;
         this.id_producto = id_producto;
         this.cantidad = cantidad;
+        this.precio_unitario = precio_unitario;
+    }
+
+    public int getPrecio_unitario() {
+        return precio_unitario;
+    }
+
+    public void setPrecio_unitario(int precio_unitario) {
+        this.precio_unitario = precio_unitario;
     }
 
     public int getCantidad() {

@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS SucursalTieneProducto
   id_sucursal INT NOT NULL,
   id_producto INT NOT NULL,
   cantidad INT NOT NULL,
+  precio_unitario INT NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id),
   FOREIGN KEY (id_producto) REFERENCES Producto(id)

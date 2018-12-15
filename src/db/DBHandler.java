@@ -595,6 +595,7 @@ public class DBHandler {
                     + "  id_sucursal INT NOT NULL,\n"
                     + "  id_producto INT NOT NULL,\n"
                     + "  cantidad INT NOT NULL,\n"
+                    + "  precio_unitario INT NOT NULL,\n"
                     + "  PRIMARY KEY (id),\n"
                     + "  FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id),\n"
                     + "  FOREIGN KEY (id_producto) REFERENCES Producto(id)\n"

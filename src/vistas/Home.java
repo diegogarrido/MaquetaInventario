@@ -282,7 +282,9 @@ public class Home extends javax.swing.JFrame {
         combo_sucursal.removeAllItems();
         LimpiarProductosRegistrados();
         if (combo_comuna.getSelectedIndex() > 0) {
-            if (combo_comuna.getSelectedIndex() == comunas.length) {
+            if (combo_comuna.getSelectedIndex() > comunas.length) {
+                AgregarComuna();
+                combo_regionActionPerformed(evt);
             } else {
                 combo_sucursal.addItem("Seleccionar...");
                 sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
@@ -323,37 +325,42 @@ public class Home extends javax.swing.JFrame {
     private void combo_sucursalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_combo_sucursalActionPerformed
         LimpiarProductosRegistrados();
         if (combo_comuna.getSelectedIndex() > 0 && combo_sucursal.getSelectedIndex() > 0) {
-            Producto[] prods = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
-            Object[][] tabla = new Object[prods.length][4];
-            for (int i = 0; i < prods.length; i++) {
-                tabla[i][0] = prods[i].nombre;
-                tabla[i][1] = prods[i].descripcion;
-                tabla[i][2] = 1;//prods[i].
-                tabla[i][3] = 100;//prods[i].nombre;
-            }
-            productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
-                    tabla,
-                    new String[]{
-                        "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
+            if (combo_sucursal.getSelectedIndex() > sucursales.length) {
+                AgregarSucursal();
+                combo_comunaActionPerformed(evt);
+            } else {
+                Producto[] prods = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
+                Object[][] tabla = new Object[prods.length][4];
+                for (int i = 0; i < prods.length; i++) {
+                    tabla[i][0] = prods[i].nombre;
+                    tabla[i][1] = prods[i].descripcion;
+                    tabla[i][2] = 1;//prods[i].
+                    tabla[i][3] = 100;//prods[i].nombre;
+                }
+                productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
+                        tabla,
+                        new String[]{
+                            "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
+                        }
+                ) {
+                    Class[] types = new Class[]{
+                        java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+                    };
+                    boolean[] canEdit = new boolean[]{
+                        false, false, false, false
+                    };
+
+                    @Override
+                    public Class getColumnClass(int columnIndex) {
+                        return types[columnIndex];
                     }
-            ) {
-                Class[] types = new Class[]{
-                    java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
-                };
-                boolean[] canEdit = new boolean[]{
-                    false, false, false, false
-                };
 
-                @Override
-                public Class getColumnClass(int columnIndex) {
-                    return types[columnIndex];
-                }
-
-                @Override
-                public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
-                }
-            });
+                    @Override
+                    public boolean isCellEditable(int rowIndex, int columnIndex) {
+                        return canEdit[columnIndex];
+                    }
+                });
+            }
         }
     }//GEN-LAST:event_combo_sucursalActionPerformed
 
@@ -369,7 +376,7 @@ public class Home extends javax.swing.JFrame {
 
     private void AgregarSucursal() {
         Sucursal suc = new Sucursal();
-        suc.setId_comuna(combo_comuna.getSelectedIndex() - 1);
+        suc.setId_comuna(comunas[combo_comuna.getSelectedIndex() - 1].id);
         String nom = JOptionPane.showInputDialog(null, "Ingrese nombre de sucursal", "Agregar Sucursal", JOptionPane.QUESTION_MESSAGE);
         if (nom != null && nom.length() > 0) {
             String dir = JOptionPane.showInputDialog(null, "Ingrese direccion de sucursal", "Agregar Sucursal", JOptionPane.QUESTION_MESSAGE);

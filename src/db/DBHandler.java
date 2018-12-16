@@ -77,7 +77,7 @@ public class DBHandler {
     }
 
     public void AgregarProducto(Sucursal suc, Producto prod, int cantidad) {
-        if (this.conn != null && cantidad > 0) {
+        if (this.conn != null) {
             try {
                 Producto[] productos = ObtenerProductosEnSucursal(suc);
                 boolean existe = false;
@@ -102,6 +102,20 @@ public class DBHandler {
         }
     }
 
+    public void QuitarProducto(Sucursal suc, Producto prod) {
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("DELETE FROM sucursaltieneproducto WHERE (id_sucursal=" + suc.id + " AND id_producto=" + prod.id + ")");
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+    }
+
     public Producto[] ObtenerProductosNoEnSucursal(Sucursal suc) {
         Producto[] productos = null;
         if (this.conn != null) {
@@ -114,7 +128,7 @@ public class DBHandler {
                     res.beforeFirst();
                     res.first();
                     for (int i = 0; i < productos.length; i++) {
-                        productos[i] = ObtenerProducto(res.getInt("id_producto"));
+                        productos[i] = ObtenerProducto(res.getInt("id"));
                         res.next();
                     }
                 }

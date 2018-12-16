@@ -13,6 +13,7 @@ public class Home extends javax.swing.JFrame {
     private Region[] regiones = null;
     private Comuna[] comunas = null;
     private Sucursal[] sucursales = null;
+    private Producto[] productosSucursal = null;
     private Producto[] productos = null;
     DBHandler query;
 
@@ -33,6 +34,80 @@ public class Home extends javax.swing.JFrame {
             combo_region.addItem(regiones[i].nombre);
         }
         combo_region.addItem("Agregar región");
+    }
+
+    private void ActualizarComboComuna() {
+        combo_comuna.addItem("Seleccionar...");
+        comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
+        for (int i = 0; i < comunas.length; i++) {
+            combo_comuna.addItem(comunas[i].nombre);
+        }
+        combo_comuna.addItem("Agregar comuna");
+    }
+
+    private void ActualizarComboSucursal() {
+        combo_sucursal.addItem("Seleccionar...");
+        sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
+        for (int i = 0; i < sucursales.length; i++) {
+            combo_sucursal.addItem(sucursales[i].nombre);
+        }
+        combo_sucursal.addItem("Agregar sucursal");
+    }
+
+    private void ActualizarProductos() {
+        LimpiarProductos();
+        if (combo_sucursal.getSelectedIndex() > 0) {
+            productos = query.ObtenerProductosNoEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
+            String[] nombres = new String[productos.length];
+            for (int i = 0; i < nombres.length; i++) {
+                nombres[i] = productos[i].nombre;
+            }
+            productosRegistrados.setModel(new javax.swing.AbstractListModel() {
+                String[] strings = nombres;
+
+                public int getSize() {
+                    return strings.length;
+                }
+
+                public Object getElementAt(int i) {
+                    return strings[i];
+                }
+            });
+        }
+    }
+
+    private void ActualizarProductosEnSucursal() {
+        productosSucursal = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
+        Object[][] tabla = new Object[productosSucursal.length][4];
+        for (int i = 0; i < productosSucursal.length; i++) {
+            tabla[i][0] = productosSucursal[i].nombre;
+            tabla[i][1] = productosSucursal[i].descripcion;
+            tabla[i][2] = 1;//prods[i].
+            tabla[i][3] = 100;//prods[i].nombre;
+        }
+        productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
+                tabla,
+                new String[]{
+                    "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
+                }
+        ) {
+            Class[] types = new Class[]{
+                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean[]{
+                false, false, false, false
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types[columnIndex];
+            }
+
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit[columnIndex];
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -294,12 +369,7 @@ public class Home extends javax.swing.JFrame {
                 AgregarComuna();
                 combo_regionActionPerformed(evt);
             } else {
-                combo_sucursal.addItem("Seleccionar...");
-                sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
-                for (int i = 0; i < sucursales.length; i++) {
-                    combo_sucursal.addItem(sucursales[i].nombre);
-                }
-                combo_sucursal.addItem("Agregar sucursal");
+                ActualizarComboSucursal();
             }
         }
     }//GEN-LAST:event_combo_comunaActionPerformed
@@ -313,22 +383,21 @@ public class Home extends javax.swing.JFrame {
                 AgregarRegion();
                 ActualizarComboRegion();
             } else {
-                combo_comuna.addItem("Seleccionar...");
-                comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
-                for (int i = 0; i < comunas.length; i++) {
-                    combo_comuna.addItem(comunas[i].nombre);
-                }
-                combo_comuna.addItem("Agregar comuna");
+                ActualizarComboComuna();
             }
         }
     }//GEN-LAST:event_combo_regionActionPerformed
 
     private void botonQuitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonQuitarActionPerformed
-        // TODO add your handling code here:
+        query.QuitarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[productosEnSucursal.getSelectedRow()]);
+        ActualizarProductos();
+        ActualizarProductosEnSucursal();
     }//GEN-LAST:event_botonQuitarActionPerformed
 
     private void botonRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegistrarActionPerformed
-        // TODO add your handling code here:
+        query.AgregarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productos[productosRegistrados.getSelectedIndex()], 0);
+        ActualizarProductos();
+        ActualizarProductosEnSucursal();
     }//GEN-LAST:event_botonRegistrarActionPerformed
 
     private void botonAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAgregarProductoActionPerformed
@@ -342,39 +411,10 @@ public class Home extends javax.swing.JFrame {
                 AgregarSucursal();
                 combo_comunaActionPerformed(evt);
             } else {
-                Producto[] prods = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
-                Object[][] tabla = new Object[prods.length][4];
-                for (int i = 0; i < prods.length; i++) {
-                    tabla[i][0] = prods[i].nombre;
-                    tabla[i][1] = prods[i].descripcion;
-                    tabla[i][2] = 1;//prods[i].
-                    tabla[i][3] = 100;//prods[i].nombre;
-                }
-                productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
-                        tabla,
-                        new String[]{
-                            "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
-                        }
-                ) {
-                    Class[] types = new Class[]{
-                        java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
-                    };
-                    boolean[] canEdit = new boolean[]{
-                        false, false, false, false
-                    };
-
-                    @Override
-                    public Class getColumnClass(int columnIndex) {
-                        return types[columnIndex];
-                    }
-
-                    @Override
-                    public boolean isCellEditable(int rowIndex, int columnIndex) {
-                        return canEdit[columnIndex];
-                    }
-                });
+                ActualizarProductosEnSucursal();
             }
         }
+        ActualizarProductos();
     }//GEN-LAST:event_combo_sucursalActionPerformed
 
     private void AgregarComuna() {
@@ -393,7 +433,7 @@ public class Home extends javax.swing.JFrame {
         String nom = JOptionPane.showInputDialog(null, "Ingrese nombre de sucursal", "Agregar Sucursal", JOptionPane.QUESTION_MESSAGE);
         if (nom != null && nom.length() > 0) {
             String dir = JOptionPane.showInputDialog(null, "Ingrese direccion de sucursal", "Agregar Sucursal", JOptionPane.QUESTION_MESSAGE);
-            if (dir != null && dir.length() > 0) {
+            if (dir != null) {
                 suc.setNombre(nom);
                 suc.setDireccion(dir);
                 query.Insertar(suc);
@@ -447,7 +487,21 @@ public class Home extends javax.swing.JFrame {
         });
     }
 
-    public Properties LoadProperties() {
+    private void LimpiarProductos() {
+        productosRegistrados.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = {};
+
+            public int getSize() {
+                return strings.length;
+            }
+
+            public Object getElementAt(int i) {
+                return strings[i];
+            }
+        });
+    }
+
+    private Properties LoadProperties() {
         try {
             Properties config = new Properties();
             InputStream inputStream = new FileInputStream("config.properties");
@@ -459,11 +513,8 @@ public class Home extends javax.swing.JFrame {
         }
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
-        MaquetaInventario.main(new String[0]);
+        MaquetaInventario.main(args);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

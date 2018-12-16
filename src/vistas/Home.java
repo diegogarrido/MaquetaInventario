@@ -2,10 +2,12 @@ package vistas;
 
 import db.DBHandler;
 import db.orm.*;
+import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.event.ChangeEvent;
 import maquetainventario.MaquetaInventario;
 
 public class Home extends javax.swing.JFrame {
@@ -82,8 +84,8 @@ public class Home extends javax.swing.JFrame {
         for (int i = 0; i < productosSucursal.length; i++) {
             tabla[i][0] = productosSucursal[i].nombre;
             tabla[i][1] = productosSucursal[i].descripcion;
-            tabla[i][2] = 1;//prods[i].
-            tabla[i][3] = 100;//prods[i].nombre;
+            tabla[i][2] = query.ObtenerCantidad(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
+            tabla[i][3] = query.ObtenerPrecio(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
         }
         productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
                 tabla,
@@ -94,8 +96,9 @@ public class Home extends javax.swing.JFrame {
             Class[] types = new Class[]{
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
+
             boolean[] canEdit = new boolean[]{
-                false, false, false, false
+                false, false, true, true
             };
 
             @Override
@@ -135,7 +138,6 @@ public class Home extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1024, 768));
-        setPreferredSize(new java.awt.Dimension(1024, 768));
         setResizable(false);
         setSize(new java.awt.Dimension(1024, 768));
 
@@ -206,7 +208,7 @@ public class Home extends javax.swing.JFrame {
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -215,6 +217,11 @@ public class Home extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        productosEnSucursal.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                productosEnSucursalKeyPressed(evt);
             }
         });
         jScrollPane2.setViewportView(productosEnSucursal);
@@ -389,15 +396,19 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_combo_regionActionPerformed
 
     private void botonQuitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonQuitarActionPerformed
-        query.QuitarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[productosEnSucursal.getSelectedRow()]);
-        ActualizarProductos();
-        ActualizarProductosEnSucursal();
+        if (productosEnSucursal.getSelectedRow() > -1) {
+            query.QuitarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[productosEnSucursal.getSelectedRow()]);
+            ActualizarProductos();
+            ActualizarProductosEnSucursal();
+        }
     }//GEN-LAST:event_botonQuitarActionPerformed
 
     private void botonRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegistrarActionPerformed
-        query.AgregarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productos[productosRegistrados.getSelectedIndex()], 0);
-        ActualizarProductos();
-        ActualizarProductosEnSucursal();
+        if (productosRegistrados.getSelectedIndex() > -1) {
+            query.AgregarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productos[productosRegistrados.getSelectedIndex()]);
+            ActualizarProductos();
+            ActualizarProductosEnSucursal();
+        }
     }//GEN-LAST:event_botonRegistrarActionPerformed
 
     private void botonAgregarProductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonAgregarProductoActionPerformed
@@ -416,6 +427,16 @@ public class Home extends javax.swing.JFrame {
         }
         ActualizarProductos();
     }//GEN-LAST:event_combo_sucursalActionPerformed
+
+    private void productosEnSucursalKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productosEnSucursalKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            int row = productosEnSucursal.getSelectedRow();
+            productosEnSucursal.getCellEditor().stopCellEditing();
+            int cantidad = Integer.parseInt("" + productosEnSucursal.getValueAt(row, 2));
+            int precio = Integer.parseInt("" + productosEnSucursal.getValueAt(row, 3));
+            query.ActualizarProductoEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[row], cantidad, precio);
+        }
+    }//GEN-LAST:event_productosEnSucursalKeyPressed
 
     private void AgregarComuna() {
         Comuna com = new Comuna();
@@ -471,19 +492,19 @@ public class Home extends javax.swing.JFrame {
             Class[] types = new Class[]{
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
+
             boolean[] canEdit = new boolean[]{
-                false, false, false, false
+                false, false, true, true
             };
 
-            @Override
             public Class getColumnClass(int columnIndex) {
                 return types[columnIndex];
             }
 
-            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
+
         });
     }
 

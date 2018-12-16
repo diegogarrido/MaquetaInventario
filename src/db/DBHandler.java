@@ -76,23 +76,25 @@ public class DBHandler {
         }
     }
 
-    public void AgregarProducto(Sucursal suc, Producto prod, int cantidad) {
+    public void AgregarProducto(Sucursal suc, Producto prod) {
         if (this.conn != null) {
             try {
-                Producto[] productos = ObtenerProductosEnSucursal(suc);
-                boolean existe = false;
-                for (int i = 0; i < productos.length; i++) {
-                    if (productos[i].id == prod.id) {
-                        existe = true;
-                        break;
-                    }
-                }
                 stat = conn.createStatement();
-                if (existe) {
-                    stat.execute("UPDATE sucursaltieneproducto SET cantidad=" + (ObtenerCantidadDeProductoEnSucursal(suc, prod) + cantidad) + " WHERE id_sucursal=" + suc.id + " AND id_producto=" + prod.id);
-                } else {
-                    stat.execute("INSERT INTO sucursaltieneproducto (id_sucursal,id_producto,cantidad,precio_unitario) VALUES (" + suc.id + "," + prod.id + "," + cantidad + "," + 0 + ")");
-                }
+                stat.execute("INSERT INTO sucursaltieneproducto (id_sucursal,id_producto,cantidad,precio_unitario) VALUES (" + suc.id + "," + prod.id + ",0,0)");
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+    }
+
+    public void ActualizarProductoEnSucursal(Sucursal suc, Producto prod, int cantidad, int precio) {
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("UPDATE sucursaltieneproducto SET cantidad=" + cantidad + ",precio_unitario=" + precio + " WHERE id_sucursal=" + suc.id + " AND id_producto=" + prod.id);
                 stat.close();
             } catch (SQLException ex) {
                 System.out.println("SQLException: " + ex.getMessage());
@@ -116,12 +118,52 @@ public class DBHandler {
         }
     }
 
+    public int ObtenerCantidad(Sucursal suc, Producto prod) {
+        int cant = -1;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT cantidad FROM sucursaltieneproducto WHERE (id_sucursal=" + suc.id + " AND id_producto=" + prod.id + ")");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.first();
+                    cant = res.getInt("cantidad");
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return cant;
+    }
+
+    public int ObtenerPrecio(Sucursal suc, Producto prod) {
+        int precio = -1;
+        if (this.conn != null) {
+            try {
+                stat = conn.createStatement();
+                stat.execute("SELECT precio_unitario FROM sucursaltieneproducto WHERE (id_sucursal=" + suc.id + " AND id_producto=" + prod.id + ")");
+                try (ResultSet res = stat.getResultSet()) {
+                    res.first();
+                    precio = res.getInt("precio_unitario");
+                }
+                stat.close();
+            } catch (SQLException ex) {
+                System.out.println("SQLException: " + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return precio;
+    }
+
     public Producto[] ObtenerProductosNoEnSucursal(Sucursal suc) {
         Producto[] productos = null;
         if (this.conn != null) {
             try {
                 stat = conn.createStatement();
-                stat.execute("SELECT id FROM producto where id NOT IN (SELECT id_producto FROM sucursaltieneproducto WHERE id_sucursal=" + suc.id + ")");
+                stat.execute("SELECT id FROM producto WHERE id NOT IN (SELECT id_producto FROM sucursaltieneproducto WHERE id_sucursal=" + suc.id + ")");
                 try (ResultSet res = stat.getResultSet()) {
                     res.last();
                     productos = new Producto[res.getRow()];

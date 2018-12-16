@@ -2,6 +2,8 @@ package vistas;
 
 import db.DBHandler;
 import db.orm.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import maquetainventario.MaquetaInventario;
@@ -16,15 +18,21 @@ public class Home extends javax.swing.JFrame {
 
     public Home() {
         initComponents();
-        Properties config = new MaquetaInventario().LoadProperties();
+        Properties config = LoadProperties();
         query = new DBHandler(config.getProperty("user"), config.getProperty("password"), config.getProperty("database"));
         query.Conectar();
+        ActualizarComboRegion();
+        LimpiarProductosRegistrados();
+    }
+
+    private void ActualizarComboRegion() {
+        combo_region.removeAllItems();
         regiones = query.ObtenerRegiones();
         combo_region.addItem("Seleccionar...");
         for (int i = 0; i < regiones.length; i++) {
             combo_region.addItem(regiones[i].nombre);
         }
-        LimpiarProductosRegistrados();
+        combo_region.addItem("Agregar región");
     }
 
     @SuppressWarnings("unchecked")
@@ -301,12 +309,17 @@ public class Home extends javax.swing.JFrame {
         combo_sucursal.removeAllItems();
         LimpiarProductosRegistrados();
         if (combo_region.getSelectedIndex() > 0) {
-            combo_comuna.addItem("Seleccionar...");
-            comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
-            for (int i = 0; i < comunas.length; i++) {
-                combo_comuna.addItem(comunas[i].nombre);
+            if (combo_region.getSelectedIndex() > regiones.length) {
+                AgregarRegion();
+                ActualizarComboRegion();
+            } else {
+                combo_comuna.addItem("Seleccionar...");
+                comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
+                for (int i = 0; i < comunas.length; i++) {
+                    combo_comuna.addItem(comunas[i].nombre);
+                }
+                combo_comuna.addItem("Agregar comuna");
             }
-            combo_comuna.addItem("Agregar comuna");
         }
     }//GEN-LAST:event_combo_regionActionPerformed
 
@@ -399,6 +412,15 @@ public class Home extends javax.swing.JFrame {
         }
     }
 
+    private void AgregarRegion() {
+        Region reg = new Region();
+        String nom = JOptionPane.showInputDialog(null, "Ingrese nombre de la Región", "Agregar Región", JOptionPane.QUESTION_MESSAGE);
+        if (nom != null && nom.length() > 0) {
+            reg.setNombre(nom);
+            query.Insertar(reg);
+        }
+    }
+
     private void LimpiarProductosRegistrados() {
         productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[0][0],
@@ -425,39 +447,23 @@ public class Home extends javax.swing.JFrame {
         });
     }
 
+    public Properties LoadProperties() {
+        try {
+            Properties config = new Properties();
+            InputStream inputStream = new FileInputStream("config.properties");
+            config.load(inputStream);
+            return config;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Home.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Home().setVisible(true);
-            }
-        });
+        MaquetaInventario.main(new String[0]);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

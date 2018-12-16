@@ -588,22 +588,22 @@ public class DBHandler {
                     + "  PRIMARY KEY (id)\n"
                     + ");");
             stat.close();
-            InsertarRegion(new Region("Tarapaca"));
-            InsertarRegion(new Region("Antofagasta"));
-            InsertarRegion(new Region("Atacama"));
-            InsertarRegion(new Region("Coquimbo"));
-            InsertarRegion(new Region("Valparaiso"));
-            InsertarRegion(new Region("Libertador General Bernardo O’Higgins"));
-            InsertarRegion(new Region("Maule"));
+            /*InsertarRegion(new Region("Tarapaca"));
+             InsertarRegion(new Region("Antofagasta"));
+             InsertarRegion(new Region("Atacama"));
+             InsertarRegion(new Region("Coquimbo"));
+             InsertarRegion(new Region("Valparaiso"));
+             InsertarRegion(new Region("Libertador General Bernardo O’Higgins"));
+             InsertarRegion(new Region("Maule"));*/
             InsertarRegion(new Region("Bio Bio"));
             InsertarRegion(new Region("Araucania"));
-            InsertarRegion(new Region("Los lagos"));
-            InsertarRegion(new Region("Aysen del General Carlos Ibanez del Campo"));
-            InsertarRegion(new Region("Magallanes y Antartica Chilena"));
-            InsertarRegion(new Region("Metropolitana de Santiago"));
-            InsertarRegion(new Region("Los Rios"));
-            InsertarRegion(new Region("Arica y Parinacota"));
-            InsertarRegion(new Region("Nuble"));
+            /*InsertarRegion(new Region("Los lagos"));
+             InsertarRegion(new Region("Aysen del General Carlos Ibanez del Campo"));
+             InsertarRegion(new Region("Magallanes y Antartica Chilena"));
+             InsertarRegion(new Region("Metropolitana de Santiago"));
+             InsertarRegion(new Region("Los Rios"));
+             InsertarRegion(new Region("Arica y Parinacota"));
+             InsertarRegion(new Region("Nuble"));*/
             System.out.println("Tabla Region creada");
             return result;
         } catch (SQLException ex) {
@@ -627,9 +627,6 @@ public class DBHandler {
                     + ");");
             stat.close();
             System.out.println("Tabla Comuna creada");
-            InsertarComuna(new Comuna("Temuco", 9));
-            InsertarComuna(new Comuna("Villarrica", 9));
-            InsertarComuna(new Comuna("Lautaro", 9));
             return result;
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());

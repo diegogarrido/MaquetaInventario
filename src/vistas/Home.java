@@ -466,6 +466,8 @@ public class Home extends javax.swing.JFrame {
             prod.setDescripcion(desc);
             query.Insertar(prod);
         }
+        ActualizarProductosEnSucursal();
+        ActualizarProductos();
     }
 
     private void AgregarRegion() {

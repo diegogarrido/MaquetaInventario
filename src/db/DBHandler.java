@@ -617,7 +617,7 @@ public class DBHandler {
             boolean result = stat.execute("CREATE TABLE IF NOT EXISTS Producto\n"
                     + "(\n"
                     + "  id INT NOT NULL AUTO_INCREMENT,\n"
-                    + "  nombre VARCHAR(30) NOT NULL,\n"
+                    + "  nombre VARCHAR(50) NOT NULL,\n"
                     + "  descripcion VARCHAR(50),\n"
                     + "  PRIMARY KEY (id),\n"
                     + "  UNIQUE (nombre)\n"
@@ -651,8 +651,8 @@ public class DBHandler {
              InsertarRegion(new Region("Valparaiso"));
              InsertarRegion(new Region("Libertador General Bernardo O’Higgins"));
              InsertarRegion(new Region("Maule"));*/
-            InsertarRegion(new Region("Bio Bio"));
-            InsertarRegion(new Region("Araucania"));
+            //InsertarRegion(new Region("Bio Bio"));
+            //InsertarRegion(new Region("Araucania"));
             /*InsertarRegion(new Region("Los lagos"));
              InsertarRegion(new Region("Aysen del General Carlos Ibanez del Campo"));
              InsertarRegion(new Region("Magallanes y Antartica Chilena"));
@@ -676,7 +676,7 @@ public class DBHandler {
             boolean result = stat.execute("CREATE TABLE IF NOT EXISTS Comuna\n"
                     + "(\n"
                     + "  id INT NOT NULL AUTO_INCREMENT,\n"
-                    + "  nombre VARCHAR(20) NOT NULL,\n"
+                    + "  nombre VARCHAR(50) NOT NULL,\n"
                     + "  id_region INT NOT NULL,\n"
                     + "  PRIMARY KEY (id),\n"
                     + "  FOREIGN KEY (id_region) REFERENCES Region(id)\n"
@@ -698,7 +698,7 @@ public class DBHandler {
             boolean result = stat.execute("CREATE TABLE IF NOT EXISTS Sucursal\n"
                     + "(\n"
                     + "  id INT NOT NULL AUTO_INCREMENT,\n"
-                    + "  nombre VARCHAR(20) NOT NULL,\n"
+                    + "  nombre VARCHAR(50) NOT NULL,\n"
                     + "  direccion VARCHAR(50) NOT NULL,\n"
                     + "  id_comuna INT NOT NULL,\n"
                     + "  PRIMARY KEY (id),\n"
@@ -706,7 +706,6 @@ public class DBHandler {
                     + ");");
             stat.close();
             System.out.println("Tabla Sucursal creada");
-            InsertarSucursal(new Sucursal("Sucursal Mackenna", "Gral Mackenna 327", 1));
             return result;
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());

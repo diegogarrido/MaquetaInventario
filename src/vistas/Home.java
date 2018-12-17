@@ -8,14 +8,14 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 
 public class Home extends javax.swing.JFrame {
-
+    
     private Region[] regiones = null;
     private Comuna[] comunas = null;
     private Sucursal[] sucursales = null;
     private Producto[] productosSucursal = null;
     private Producto[] productos = null;
     DBHandler query;
-
+    
     public Home() {
         initComponents();
         Properties config = LoadProperties();
@@ -23,8 +23,10 @@ public class Home extends javax.swing.JFrame {
         query.Conectar();
         ActualizarComboRegion();
         LimpiarProductosRegistrados();
+        LimpiarProductos();
+        ActualizarProductos();
     }
-
+    
     private void ActualizarComboRegion() {
         combo_region.removeAllItems();
         regiones = query.ObtenerRegiones();
@@ -34,7 +36,7 @@ public class Home extends javax.swing.JFrame {
         }
         combo_region.addItem("Agregar región");
     }
-
+    
     private void ActualizarComboComuna() {
         combo_comuna.addItem("Seleccionar...");
         comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
@@ -43,7 +45,7 @@ public class Home extends javax.swing.JFrame {
         }
         combo_comuna.addItem("Agregar comuna");
     }
-
+    
     private void ActualizarComboSucursal() {
         combo_sucursal.addItem("Seleccionar...");
         sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
@@ -52,7 +54,7 @@ public class Home extends javax.swing.JFrame {
         }
         combo_sucursal.addItem("Agregar sucursal");
     }
-
+    
     private void ActualizarProductos() {
         LimpiarProductos();
         if (combo_sucursal.getSelectedIndex() > 0) {
@@ -63,12 +65,31 @@ public class Home extends javax.swing.JFrame {
             }
             productosRegistrados.setModel(new javax.swing.AbstractListModel() {
                 String[] strings = nombres;
-
+                
                 @Override
                 public int getSize() {
                     return strings.length;
                 }
-
+                
+                @Override
+                public Object getElementAt(int i) {
+                    return strings[i];
+                }
+            });
+        } else {
+            productos = query.ObtenerProductos();
+            String[] nombres = new String[productos.length];
+            for (int i = 0; i < nombres.length; i++) {
+                nombres[i] = productos[i].nombre;
+            }
+            productosRegistrados.setModel(new javax.swing.AbstractListModel() {
+                String[] strings = nombres;
+                
+                @Override
+                public int getSize() {
+                    return strings.length;
+                }
+                
                 @Override
                 public Object getElementAt(int i) {
                     return strings[i];
@@ -76,42 +97,44 @@ public class Home extends javax.swing.JFrame {
             });
         }
     }
-
+    
     private void ActualizarProductosEnSucursal() {
-        productosSucursal = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
-        Object[][] tabla = new Object[productosSucursal.length][4];
-        for (int i = 0; i < productosSucursal.length; i++) {
-            tabla[i][0] = productosSucursal[i].nombre;
-            tabla[i][1] = productosSucursal[i].descripcion;
-            tabla[i][2] = query.ObtenerCantidad(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
-            tabla[i][3] = query.ObtenerPrecio(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
-        }
-        productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
-                tabla,
-                new String[]{
-                    "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
+        if (combo_sucursal.getSelectedIndex() > 0) {
+            productosSucursal = query.ObtenerProductosEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1]);
+            Object[][] tabla = new Object[productosSucursal.length][4];
+            for (int i = 0; i < productosSucursal.length; i++) {
+                tabla[i][0] = productosSucursal[i].nombre;
+                tabla[i][1] = productosSucursal[i].descripcion;
+                tabla[i][2] = query.ObtenerCantidad(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
+                tabla[i][3] = query.ObtenerPrecio(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[i]);
+            }
+            productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
+                    tabla,
+                    new String[]{
+                        "Nombre", "Descripcón", "Cantidad", "Precio Unitario"
+                    }
+            ) {
+                Class[] types = new Class[]{
+                    java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+                };
+                
+                boolean[] canEdit = new boolean[]{
+                    false, false, true, true
+                };
+                
+                @Override
+                public Class getColumnClass(int columnIndex) {
+                    return types[columnIndex];
                 }
-        ) {
-            Class[] types = new Class[]{
-                java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
-            };
-
-            boolean[] canEdit = new boolean[]{
-                false, false, true, true
-            };
-
-            @Override
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        });
+                
+                @Override
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            });
+        }
     }
-
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -132,6 +155,8 @@ public class Home extends javax.swing.JFrame {
         botonQuitar = new javax.swing.JButton();
         botonRegistrar = new javax.swing.JButton();
         botonAgregarProducto = new javax.swing.JButton();
+        lbl_comuna1 = new javax.swing.JLabel();
+        campoDireccion = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -258,6 +283,12 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
+        lbl_comuna1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lbl_comuna1.setText("Direccion");
+
+        campoDireccion.setEditable(false);
+        campoDireccion.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -278,7 +309,7 @@ public class Home extends javax.swing.JFrame {
                             .addComponent(combo_sucursal, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGap(32, 32, 32)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -287,10 +318,17 @@ public class Home extends javax.swing.JFrame {
                                 .addGap(35, 35, 35)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(118, 118, 118)
-                                .addComponent(lbl_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(combo_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(lbl_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(combo_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(lbl_comuna1, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(campoDireccion)))))
                         .addContainerGap(72, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -313,10 +351,14 @@ public class Home extends javax.swing.JFrame {
                         .addComponent(lbl_comuna, javax.swing.GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
                         .addComponent(combo_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(lbl_region, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(29, 29, 29)
+                .addGap(28, 28, 28)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(combo_sucursal, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
+                        .addComponent(campoDireccion, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE))
+                    .addComponent(lbl_comuna1, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(43, 43, 43)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -357,7 +399,7 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(81, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
 
         pack();
@@ -399,7 +441,7 @@ public class Home extends javax.swing.JFrame {
     }//GEN-LAST:event_botonQuitarActionPerformed
 
     private void botonRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonRegistrarActionPerformed
-        if (productosRegistrados.getSelectedIndex() > -1) {
+        if (productosRegistrados.getSelectedIndex() > -1 && combo_sucursal.getSelectedIndex() > 0) {
             query.AgregarProducto(sucursales[combo_sucursal.getSelectedIndex() - 1], productos[productosRegistrados.getSelectedIndex()]);
             ActualizarProductos();
             ActualizarProductosEnSucursal();
@@ -417,8 +459,11 @@ public class Home extends javax.swing.JFrame {
                 AgregarSucursal();
                 combo_comunaActionPerformed(evt);
             } else {
+                campoDireccion.setText(sucursales[combo_sucursal.getSelectedIndex() - 1].direccion);
                 ActualizarProductosEnSucursal();
             }
+        } else {
+            campoDireccion.setText("");
         }
         ActualizarProductos();
     }//GEN-LAST:event_combo_sucursalActionPerformed
@@ -432,7 +477,7 @@ public class Home extends javax.swing.JFrame {
             ActualizarProductosEnSucursal();
         }
     }//GEN-LAST:event_ProductosEnSucursalComponentRemoved
-
+    
     private void AgregarComuna() {
         Comuna com = new Comuna();
         com.setId_region(regiones[combo_region.getSelectedIndex() - 1].id);
@@ -442,7 +487,7 @@ public class Home extends javax.swing.JFrame {
             query.Insertar(com);
         }
     }
-
+    
     private void AgregarSucursal() {
         Sucursal suc = new Sucursal();
         suc.setId_comuna(comunas[combo_comuna.getSelectedIndex() - 1].id);
@@ -456,7 +501,7 @@ public class Home extends javax.swing.JFrame {
             }
         }
     }
-
+    
     private void AgregarProducto() {
         Producto prod = new Producto();
         String nom = JOptionPane.showInputDialog(null, "Ingrese nombre de producto", "Agregar Producto", JOptionPane.QUESTION_MESSAGE);
@@ -469,7 +514,7 @@ public class Home extends javax.swing.JFrame {
         ActualizarProductosEnSucursal();
         ActualizarProductos();
     }
-
+    
     private void AgregarRegion() {
         Region reg = new Region();
         String nom = JOptionPane.showInputDialog(null, "Ingrese nombre de la Región", "Agregar Región", JOptionPane.QUESTION_MESSAGE);
@@ -478,7 +523,7 @@ public class Home extends javax.swing.JFrame {
             query.Insertar(reg);
         }
     }
-
+    
     private void LimpiarProductosRegistrados() {
         productosEnSucursal.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[0][0],
@@ -489,40 +534,40 @@ public class Home extends javax.swing.JFrame {
             Class[] types = new Class[]{
                 java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
             };
-
+            
             boolean[] canEdit = new boolean[]{
                 false, false, true, true
             };
-
+            
             @Override
             public Class getColumnClass(int columnIndex) {
                 return types[columnIndex];
             }
-
+            
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
-
+            
         });
     }
-
+    
     private void LimpiarProductos() {
         productosRegistrados.setModel(new javax.swing.AbstractListModel() {
             String[] strings = {};
-
+            
             @Override
             public int getSize() {
                 return strings.length;
             }
-
+            
             @Override
             public Object getElementAt(int i) {
                 return strings[i];
             }
         });
     }
-
+    
     private Properties LoadProperties() {
         try {
             Properties config = new Properties();
@@ -534,7 +579,7 @@ public class Home extends javax.swing.JFrame {
             return null;
         }
     }
-
+    
     public static void main(String args[]) {
         Home home = new Home();
         home.setLocationRelativeTo(null);
@@ -545,6 +590,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JButton botonAgregarProducto;
     private javax.swing.JButton botonQuitar;
     private javax.swing.JButton botonRegistrar;
+    private javax.swing.JTextField campoDireccion;
     private javax.swing.JComboBox<String> combo_comuna;
     private javax.swing.JComboBox<String> combo_region;
     private javax.swing.JComboBox<String> combo_sucursal;
@@ -556,6 +602,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lbl_comuna;
+    private javax.swing.JLabel lbl_comuna1;
     private javax.swing.JLabel lbl_region;
     private javax.swing.JTable productosEnSucursal;
     private javax.swing.JList productosRegistrados;

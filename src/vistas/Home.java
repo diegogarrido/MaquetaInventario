@@ -2,16 +2,10 @@ package vistas;
 
 import db.DBHandler;
 import db.orm.*;
-import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.EventObject;
 import java.util.Properties;
-import javax.swing.CellEditor;
 import javax.swing.JOptionPane;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.table.TableCellEditor;
 
 public class Home extends javax.swing.JFrame {
 

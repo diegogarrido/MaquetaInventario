@@ -219,7 +219,7 @@ public class Home extends javax.swing.JFrame {
         });
         productosEnSucursal.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentRemoved(java.awt.event.ContainerEvent evt) {
-                productosEnSucursalComponentRemoved(evt);
+                ProductosEnSucursalComponentRemoved(evt);
             }
         });
         jScrollPane2.setViewportView(productosEnSucursal);
@@ -423,7 +423,7 @@ public class Home extends javax.swing.JFrame {
         ActualizarProductos();
     }//GEN-LAST:event_combo_sucursalActionPerformed
 
-    private void productosEnSucursalComponentRemoved(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_productosEnSucursalComponentRemoved
+    private void ProductosEnSucursalComponentRemoved(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_ProductosEnSucursalComponentRemoved
         if (evt.paramString().contains("Table.editor")) {
             int row = productosEnSucursal.getSelectedRow();
             int cantidad = Integer.parseInt("" + productosEnSucursal.getValueAt(row, 2));
@@ -431,7 +431,7 @@ public class Home extends javax.swing.JFrame {
             query.ActualizarProductoEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[row], cantidad, precio);
             ActualizarProductosEnSucursal();
         }
-    }//GEN-LAST:event_productosEnSucursalComponentRemoved
+    }//GEN-LAST:event_ProductosEnSucursalComponentRemoved
 
     private void AgregarComuna() {
         Comuna com = new Comuna();

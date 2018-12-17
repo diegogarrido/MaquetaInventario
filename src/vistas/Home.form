@@ -244,7 +244,7 @@
                 </Property>
               </Properties>
               <Events>
-                <EventHandler event="componentRemoved" listener="java.awt.event.ContainerListener" parameters="java.awt.event.ContainerEvent" handler="productosEnSucursalComponentRemoved"/>
+                <EventHandler event="componentRemoved" listener="java.awt.event.ContainerListener" parameters="java.awt.event.ContainerEvent" handler="ProductosEnSucursalComponentRemoved"/>
               </Events>
             </Component>
           </SubComponents>

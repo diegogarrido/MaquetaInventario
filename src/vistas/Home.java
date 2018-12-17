@@ -5,10 +5,13 @@ import db.orm.*;
 import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.EventObject;
 import java.util.Properties;
+import javax.swing.CellEditor;
 import javax.swing.JOptionPane;
+import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import maquetainventario.MaquetaInventario;
+import javax.swing.table.TableCellEditor;
 
 public class Home extends javax.swing.JFrame {
 
@@ -32,8 +35,8 @@ public class Home extends javax.swing.JFrame {
         combo_region.removeAllItems();
         regiones = query.ObtenerRegiones();
         combo_region.addItem("Seleccionar...");
-        for (int i = 0; i < regiones.length; i++) {
-            combo_region.addItem(regiones[i].nombre);
+        for (Region region : regiones) {
+            combo_region.addItem(region.nombre);
         }
         combo_region.addItem("Agregar región");
     }
@@ -41,8 +44,8 @@ public class Home extends javax.swing.JFrame {
     private void ActualizarComboComuna() {
         combo_comuna.addItem("Seleccionar...");
         comunas = query.ObtenerComunasDeRegion(regiones[combo_region.getSelectedIndex() - 1]);
-        for (int i = 0; i < comunas.length; i++) {
-            combo_comuna.addItem(comunas[i].nombre);
+        for (Comuna comuna : comunas) {
+            combo_comuna.addItem(comuna.nombre);
         }
         combo_comuna.addItem("Agregar comuna");
     }
@@ -50,8 +53,8 @@ public class Home extends javax.swing.JFrame {
     private void ActualizarComboSucursal() {
         combo_sucursal.addItem("Seleccionar...");
         sucursales = query.ObtenerSucursalesDeComuna(comunas[combo_comuna.getSelectedIndex() - 1]);
-        for (int i = 0; i < sucursales.length; i++) {
-            combo_sucursal.addItem(sucursales[i].nombre);
+        for (Sucursal sucursal : sucursales) {
+            combo_sucursal.addItem(sucursal.nombre);
         }
         combo_sucursal.addItem("Agregar sucursal");
     }
@@ -67,10 +70,12 @@ public class Home extends javax.swing.JFrame {
             productosRegistrados.setModel(new javax.swing.AbstractListModel() {
                 String[] strings = nombres;
 
+                @Override
                 public int getSize() {
                     return strings.length;
                 }
 
+                @Override
                 public Object getElementAt(int i) {
                     return strings[i];
                 }
@@ -132,9 +137,8 @@ public class Home extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         botonQuitar = new javax.swing.JButton();
         botonRegistrar = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
         botonAgregarProducto = new javax.swing.JButton();
-        botonVender = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1024, 768));
@@ -219,9 +223,9 @@ public class Home extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        productosEnSucursal.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                productosEnSucursalKeyPressed(evt);
+        productosEnSucursal.addContainerListener(new java.awt.event.ContainerAdapter() {
+            public void componentRemoved(java.awt.event.ContainerEvent evt) {
+                productosEnSucursalComponentRemoved(evt);
             }
         });
         jScrollPane2.setViewportView(productosEnSucursal);
@@ -253,6 +257,13 @@ public class Home extends javax.swing.JFrame {
             }
         });
 
+        botonAgregarProducto.setText("Nuevo producto");
+        botonAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonAgregarProductoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -273,18 +284,24 @@ public class Home extends javax.swing.JFrame {
                             .addComponent(combo_sucursal, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(80, 80, 80)
-                        .addComponent(lbl_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(combo_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(botonQuitar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(botonRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(35, 35, 35)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(75, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(32, 32, 32)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(botonQuitar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(botonRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(35, 35, 35)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(118, 118, 118)
+                                .addComponent(lbl_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(combo_comuna, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(72, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(botonAgregarProducto)
+                        .addGap(169, 169, 169))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(211, 211, 211)
                 .addComponent(jLabel4)
@@ -312,39 +329,27 @@ public class Home extends javax.swing.JFrame {
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane1)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(86, 86, 86)
                         .addComponent(botonRegistrar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(76, 76, 76)
-                        .addComponent(botonQuitar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(botonQuitar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(botonAgregarProducto))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 387, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(31, 31, 31))
         );
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel2.setText("Gestión de inventario TecnoBox");
 
-        botonAgregarProducto.setText("Nuevo producto");
-        botonAgregarProducto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botonAgregarProductoActionPerformed(evt);
-            }
-        });
-
-        botonVender.setText("Vender Seleccionado");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(228, 228, 228)
-                .addComponent(botonVender)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(botonAgregarProducto)
-                .addGap(164, 164, 164))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 336, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -358,11 +363,7 @@ public class Home extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(botonAgregarProducto)
-                    .addComponent(botonVender))
-                .addContainerGap(47, Short.MAX_VALUE))
+                .addContainerGap(81, Short.MAX_VALUE))
         );
 
         pack();
@@ -428,15 +429,15 @@ public class Home extends javax.swing.JFrame {
         ActualizarProductos();
     }//GEN-LAST:event_combo_sucursalActionPerformed
 
-    private void productosEnSucursalKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productosEnSucursalKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+    private void productosEnSucursalComponentRemoved(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_productosEnSucursalComponentRemoved
+        if (evt.paramString().contains("Table.editor")) {
             int row = productosEnSucursal.getSelectedRow();
-            productosEnSucursal.getCellEditor().stopCellEditing();
             int cantidad = Integer.parseInt("" + productosEnSucursal.getValueAt(row, 2));
             int precio = Integer.parseInt("" + productosEnSucursal.getValueAt(row, 3));
             query.ActualizarProductoEnSucursal(sucursales[combo_sucursal.getSelectedIndex() - 1], productosSucursal[row], cantidad, precio);
+            ActualizarProductosEnSucursal();
         }
-    }//GEN-LAST:event_productosEnSucursalKeyPressed
+    }//GEN-LAST:event_productosEnSucursalComponentRemoved
 
     private void AgregarComuna() {
         Comuna com = new Comuna();
@@ -497,10 +498,12 @@ public class Home extends javax.swing.JFrame {
                 false, false, true, true
             };
 
+            @Override
             public Class getColumnClass(int columnIndex) {
                 return types[columnIndex];
             }
 
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
@@ -512,10 +515,12 @@ public class Home extends javax.swing.JFrame {
         productosRegistrados.setModel(new javax.swing.AbstractListModel() {
             String[] strings = {};
 
+            @Override
             public int getSize() {
                 return strings.length;
             }
 
+            @Override
             public Object getElementAt(int i) {
                 return strings[i];
             }
@@ -535,14 +540,15 @@ public class Home extends javax.swing.JFrame {
     }
 
     public static void main(String args[]) {
-        MaquetaInventario.main(args);
+        Home home = new Home();
+        home.setLocationRelativeTo(null);
+        home.setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton botonAgregarProducto;
     private javax.swing.JButton botonQuitar;
     private javax.swing.JButton botonRegistrar;
-    private javax.swing.JButton botonVender;
     private javax.swing.JComboBox<String> combo_comuna;
     private javax.swing.JComboBox<String> combo_region;
     private javax.swing.JComboBox<String> combo_sucursal;
